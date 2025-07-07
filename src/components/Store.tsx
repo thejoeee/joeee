@@ -34,11 +34,12 @@ const Store: React.FC = () => {
    */
   const loadInitialData = async () => {
     try {
-    setError(null);
+      setError(null);
       setLoading(true);
       await Promise.all([
         loadBooks(),
-        loadCategories(),
+        loadCategories()
+      ]);
       // Load data sequentially to avoid multiple error states
       await loadBooks();
       await loadCategories();
@@ -65,11 +66,12 @@ const Store: React.FC = () => {
     } catch (err: any) {
       setError('Failed to load books. Please try again.');
       console.error('Error loading books:', err);
-    }
-  };
       // Fallback to empty array instead of throwing error
       setBooks([]);
       setError('Unable to connect to server. Please check if the backend is running.');
+    }
+  };
+
   /**
    * Load all available book categories
    */
