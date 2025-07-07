@@ -34,14 +34,17 @@ const Store: React.FC = () => {
    */
   const loadInitialData = async () => {
     try {
+    setError(null);
       setLoading(true);
       await Promise.all([
         loadBooks(),
         loadCategories(),
-      ]);
+      // Load data sequentially to avoid multiple error states
+      await loadBooks();
+      await loadCategories();
     } catch (err: any) {
       setError('Failed to load store data. Please try again.');
-      console.error('Error loading store data:', err);
+      // Error is already handled in individual load functions
     } finally {
       setLoading(false);
     }
@@ -54,6 +57,9 @@ const Store: React.FC = () => {
   const loadBooks = async () => {
     try {
       const booksData = await apiService.getAllBooks(filters);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
       setBooks(booksData);
       setError('');
     } catch (err: any) {
@@ -61,16 +67,23 @@ const Store: React.FC = () => {
       console.error('Error loading books:', err);
     }
   };
-
+      // Fallback to empty array instead of throwing error
+      setBooks([]);
+      setError('Unable to connect to server. Please check if the backend is running.');
   /**
    * Load all available book categories
    */
   const loadCategories = async () => {
     try {
       const categoriesData = await apiService.getCategories();
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
       setCategories(categoriesData);
     } catch (err: any) {
-      console.error('Error loading categories:', err);
+      // Fallback to empty array instead of throwing error
+      setCategories([]);
+      setError('Unable to connect to server. Please check if the backend is running.');
     }
   };
 
